@@ -1,0 +1,40 @@
+[alias]
+	tree = !git log --graph --decorate --all --oneline
+	tmpignore = "!f() { git status --porcelain=v1 | while read stat name; do git update-index --skip-worktree $name; echo $name >> assume-unchanged; done }; f"
+	no-tmpignore = "!f() { (cat assume-unchanged && rm assume-unchanged) | while read name; do git update-index --no-skip-worktree $name; done }; f"
+	bs = "for-each-ref --format='%(refname:short) %(upstream:track)' refs/heads"
+	p = !git pull --tags --prune
+	f = !git fetch --tags --prune
+	wgtree = !git f && git log --graph --pretty=format:'%C(Yellow)%h %Cgreen%aN %Creset%s %C(auto)%d'  origin\\/Wingesfar_beta
+	lg = log --graph --decorate --oneline
+	
+	coparents = "!f(){ \
+		git fetch \
+		&& git branch -r\
+		| grep -v "\\*" \
+		| grep -E "origin/sup_\\|[Ww]ingesfar" \
+		| while read name; \
+			do git merge-base $name $1 \
+			| xargs git rev-list \
+			| wc -l \
+			| xargs echo -n && echo \"\" $name \
+			;\
+		done \
+		| sort -n \
+		| tail -n3 \
+		;}; f"	
+		
+	parents = !git rev-parse --abbrev-ref HEAD | xargs git coparents 
+	
+	is-parent = ![ $(git rev-list $1..$2 | wc -l) -gt 0 ] && echo true
+	
+	fix = !git tag -l | grep -E 'fix/' | tail
+	bw = !git tag -l | grep -E 'beta/' | tail
+	released = !git fix && git bw
+	
+	released-with = "!f(){(git tag --contains $1 | grep -E 'fix/' | head -n1) && (git tag --contains $1 | grep -E 'beta/' | head -n1); }; f"
+	file-released-with = "!f(){ git log --follow --pretty=format:'%H' $1 | head -n1 | xargs git released-with ; }; f"
+	
+	
+[winUpdater]
+	recentlySeenVersion = 2.15.1.windows.2
