@@ -1,7 +1,7 @@
 [alias]
 	tree = !git log --graph --decorate --all --oneline
-	tmpignore = "!f() { git status --porcelain=v1 | while read stat name; do git update-index --assume-unchanged $name; echo $name >> assume-unchanged; done }; f"
-	no-tmpignore = "!f() { (cat assume-unchanged && rm assume-unchanged) | while read name; do git update-index --no-assume-unchanged $name; done }; f"
+	tmpignore = "!f() { git status --porcelain=v1 | while read stat name; do git update-index --skip-worktree $name; echo $name >> assume-unchanged; done }; f"
+	no-tmpignore = "!f() { (cat assume-unchanged && rm assume-unchanged) | while read name; do git update-index --no-skip-worktree $name; done }; f"
 
 [winUpdater]
 	recentlySeenVersion = 2.15.1.windows.2
